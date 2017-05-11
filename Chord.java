@@ -47,6 +47,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         if(trans.getOp() == Transaction.Operation.DELETE){
             try {
                 delete(trans.getGuid());
+
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -61,7 +62,8 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
 
     public void doAbort(Transaction trans){
-        //get rid of transaction?
+        File f = new File("./tmp/"+trans.getTransactionId());
+        f.delete();
     }
 
     public void haveCommitted(Transaction trans, Object participant){
