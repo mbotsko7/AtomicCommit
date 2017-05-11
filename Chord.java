@@ -1,14 +1,21 @@
 
-import java.rmi.*;
-import java.rmi.registry.*;
-import java.rmi.server.*;
-import java.net.*;
-import java.util.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
-import java.security.*;
-
-import static java.lang.System.in;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /*****************************//**
 * \class Chord Chord class which will handle all of the methods that are called remotely
@@ -24,6 +31,8 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     ChordMessageInterface[] finger;
     int nextFinger;
     long guid;   		// GUID (i)
+    
+    String filePath, tmpPath;
     /***************************************
      * Begin Atomic Commit
      */
@@ -33,7 +42,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public boolean canCommit(Transaction trans){
         if(1 == 1){
             trans.setVote(true);
-            File f = new File("./tmp/"+trans.getTransactionId());
+            File f = new File(tmpPath+trans.getTransactionId());
             try{
                 OutputStream ostream = new FileOutputStream(f);
                 ObjectOutputStream tstream = new ObjectOutputStream(ostream);
@@ -70,13 +79,13 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
 
     public void doAbort(Transaction trans){
-        File f = new File("./tmp/"+trans.getTransactionId());
+        File f = new File(tmpPath+trans.getTransactionId());
         if(f.exists()) //in case this participant said no
             f.delete();
     }
 
     public boolean haveCommitted(Transaction trans, long participant){
-        File f = new File("./"+this.guid+"/"+trans.getGuid());
+        File f = new File(filePath+trans.getGuid());
         if(f.exists())
             return true;
         return false;
@@ -85,7 +94,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public boolean getDecision(Transaction trans){
         try {
             //ChordMessageInterface c = locateSuccessor(trans.getCoordinator());
-            File f = new File("./tmp/"+trans.getTransactionId());
+            File f = new File(tmpPath+trans.getTransactionId());
             try{
                 InputStream ostream = new FileInputStream(f);
                 ObjectInputStream tstream = new ObjectInputStream(ostream);
@@ -266,8 +275,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public void put(long guidObject, InputStream stream) throws RemoteException {
 	 //TODO Store the file at ./guid/repository/guid
       try {
-          String fileName = "./"+guid+"/repository/" + guidObject;
-          FileOutputStream output = new FileOutputStream(fileName);
+          FileOutputStream output = new FileOutputStream(filePath + guidObject);
           while (stream.available() > 0)
               output.write(stream.read());
           output.close();
@@ -284,8 +292,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public InputStream get(long guidObject) throws RemoteException {
 	 FileStream file = null;
      try{
-         String fileName =  "./"+guid+"/repository/" + guidObject;
-         file = new FileStream(fileName);
+         file = new FileStream(filePath + guidObject);
      }
      catch (IOException e) {
          System.out.println(e);
@@ -301,7 +308,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public void delete(long guidObject) throws RemoteException {
           //TODO delete the file ./port/repository/guid
         try{
-            File fileName =  new File("./"+guid+"/repository/" + guidObject);
+            File fileName =  new File(filePath + guidObject);
 
             fileName.delete();
         }
@@ -373,8 +380,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
             fixFingers();
             stabilize();
 
-            String path = "./"+guid+"/repository";
-            File[] f = new File(path).listFiles();
+            File[] f = new File(filePath).listFiles();
             for (File myfile:
                  f) {
                 Long longislong = Long.parseLong(myfile.getName());
@@ -514,15 +520,15 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     * \param giud Desired GUID of Chord
     **********************************/
     public Chord(int port, long guid) throws RemoteException {
-        File f = new File("./tmp");
-        if(!f.exists())
-            f.mkdir();
-        int j;
+        this.guid = guid;
+        this.filePath = "./" + guid + "/repository/";
+        this.tmpPath = "./" + guid + "/tmp/";
+        new File(filePath).mkdirs();
+        new File(tmpPath).mkdirs();
 	    finger = new ChordMessageInterface[M];
-        for (j=0;j<M; j++){
+        for (int j=0;j<M; j++){
 	       finger[j] = null;
      	}
-        this.guid = guid;
 
         predecessor = null;
         successor = this;
