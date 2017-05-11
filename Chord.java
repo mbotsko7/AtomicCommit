@@ -156,12 +156,38 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
     void deleteFile(String fileName){
         try{
-            long guidObject = md5(fileName);
-            ChordMessageInterface peer = locateSuccessor(guidObject);
-            peer.delete(guidObject);
+            boolean vote = true;
+            //tally votes
+            for(int i = 0; i < 3; i++){
+                long id = md5(fileName+i+1);
+                ChordMessageInterface c = locateSuccessor(id);
+                Transaction t = new Transaction( guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.DELETE);
+                if(c.canCommit(t) == false)
+                    vote = false;
+            }
+            //if yes
+            if(vote){
+                for(int i = 0; i < 3; i++){
+                    long id = md5(fileName+i+1);
+                    ChordMessageInterface c = locateSuccessor(id);
+                    c.doCommit(new Transaction(guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.DELETE));
+
+                }
+            }
+            else{ //if no
+                for(int i = 0; i < 3; i++){
+                    long id = md5(fileName+i+1);
+                    ChordMessageInterface c = locateSuccessor(id);
+                    c.doAbort(new Transaction(guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.DELETE));
+
+                }
+            }
+
+
         }catch(IOException e){
             e.printStackTrace();
         }
+
     }
 
     /***************************************
