@@ -5,6 +5,8 @@ import java.rmi.server.*;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+import java.math.BigInteger;
+import java.security.*;
 
 /*****************************//**
 * \class Chord Chord class which will handle all of the methods that are called remotely
@@ -80,7 +82,22 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     /***************************************
      * End Atomic Commit
      */
-
+     /*****************************//**
+     * Create MD5 hash with a name:
+     * \param objectName Name of the file you want to hash with
+     **********************************/
+    private long md5(String objectName){
+       try{
+           MessageDigest m = MessageDigest.getInstance("MD5");
+           m.reset();
+           m.update(objectName.getBytes());
+           BigInteger bigInt = new BigInteger(1,m.digest());
+           return Math.abs(bigInt.longValue());
+       }catch(NoSuchAlgorithmException e){
+               e.printStackTrace();
+       }
+       return 0;
+    }
 
 
     /*****************************//**
@@ -432,5 +449,21 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         catch(RemoteException e){
 	       System.out.println("Cannot retrive id");
         }
+    }
+    
+    void writeFile(Sting fileName){
+      
+    }
+    
+    void writeDirectory(String directoryName){
+      
+    }
+    
+    void readFile(String fileName){
+      
+    }
+    
+    void deleteFile(String fileName){
+      
     }
 }
