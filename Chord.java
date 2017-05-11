@@ -53,8 +53,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 e.printStackTrace();
             }
 
-            return valid;
+
         }
+        return valid;
     }
 
     public boolean canCommit(Transaction trans){
