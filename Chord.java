@@ -456,7 +456,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         long guidObject = md5(fileName);
         String path = path = "./"+  this.guid +"/"+fileName;
         FileStream file = new FileStream(path);
-        ChordMessageInterface peer = this.locateSuccessor(guidObject);
+        ChordMessageInterface peer = locateSuccessor(guidObject);
         peer.put(guidObject, file);
       }catch(IOException e){
         e.printStackTrace();
@@ -468,10 +468,30 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
     
     void readFile(String fileName){
-      
+      try{
+        long guidObject = md5(fileName);
+        String path = "./"+this.guid+"/"+fileName;
+        ChordMessageInterface peer = locateSuccessor(guidObject);
+        InputStream s = peer.get(guidObject);
+        FileOutputStream output = new FileOutputStream(path);
+        while (s.available() > 0){
+            output.write(s.read());
+        }
+        output.close();
+      }catch(RemoteException e){
+        System.out.println(e);
+      }catch(IOException e){
+        e.printStackTrace();
+      }
     }
     
     void deleteFile(String fileName){
-      
+      try{
+        long guidObject = md5(fileName);
+        ChordMessageInterface peer = locateSuccessor(guidObject);
+        peer.delete(guidObject);
+      }catch(IOException e){
+        e.printStackTrace();
+      }
     }
 }
