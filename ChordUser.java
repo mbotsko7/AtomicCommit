@@ -60,8 +60,8 @@ public class ChordUser
                          e.printStackTrace();
 
                      }
-                     System.out.println("Usage: \n\tjoin <ip> <port>\n\twrite <file> (the file must be an integer stored in the working directory, i.e, ./"+guid+"/file");
-                     System.out.println("\tread <file>\n\tdelete <file>\n\tprint");
+                     System.out.println("Usage: \n\tjoin <ip> <port>\n\twrite <file>\n\twrite <directory>");
+                     System.out.println("\tread <file>\n\tdelete <file>");
 
                      Scanner scan= new Scanner(System.in);
                      String delims = "[ ]+";
@@ -130,6 +130,15 @@ public class ChordUser
                             long guidObject = md5(tokens[1]);
                             ChordMessageInterface peer = chord.locateSuccessor(guidObject);
                             peer.delete(guidObject);
+                            // Obtain the chord that is responsable for the file:
+                            //  peer = chord.locateSuccessor(guidObject);
+                            // where guidObject = md5(fileName)
+                            // Call peer.delete(guidObject)
+                        }
+                        if  (tokens[0].equals("find") && tokens.length == 2) {
+                            long guidObject = md5(tokens[1]);
+                            ChordMessageInterface peer = chord.locateSuccessor(guidObject);
+                            System.out.println(peer.getId());
                             // Obtain the chord that is responsable for the file:
                             //  peer = chord.locateSuccessor(guidObject);
                             // where guidObject = md5(fileName)
