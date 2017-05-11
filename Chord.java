@@ -69,7 +69,8 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
     public void doAbort(Transaction trans){
         File f = new File("./tmp/"+trans.getTransactionId());
-        f.delete();
+        if(f.exists()) //in case this participant said no
+            f.delete();
     }
 
     public void haveCommitted(Transaction trans, long participant){
@@ -131,7 +132,8 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
 
     void writeDirectory(String directoryName){
-
+        File f = new File(".");
+        f.listFiles();
     }
 
     void readFile(String fileName){
