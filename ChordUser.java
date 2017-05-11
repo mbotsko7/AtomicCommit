@@ -91,19 +91,7 @@ public class ChordUser
                              chord.Print();
                          }
                          if  (tokens[0].equals("write") && tokens.length == 2) {
-                             try {
-                                 String path;
-                                 String fileName = tokens[1];
-                                 long guidObject = md5(fileName);
-                                 // If you are using windows you have to use
-                                 // 				path = ".\\"+  guid +"\\"+fileName; // path to file
-                                 path = "./"+  guid +"/"+fileName; // path to file
-                                 FileStream file = new FileStream(path);
-                                 ChordMessageInterface peer = chord.locateSuccessor(guidObject);
-                                 peer.put(guidObject, file); // put file into ring
-                             } catch (IOException e) {
-                                 e.printStackTrace();
-                             }
+                             chord.writeFile(tokens[1]);
                          }
                          if  (tokens[0].equals("read") && tokens.length == 2) {
                              String path = "./"+guid+"/"+tokens[1];

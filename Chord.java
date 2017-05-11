@@ -453,8 +453,16 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
     
-    void writeFile(Sting fileName){
-      
+    void writeFile(String fileName){
+      try{
+        long guidObject = md5(fileName);
+        String path = path = "./"+  this.guid +"/"+fileName;
+        FileStream file = new FileStream(path);
+        ChordMessageInterface peer = this.locateSuccessor(guidObject);
+        peer.put(guidObject, file);
+      }catch(IOException e){
+        e.printStackTrace();
+      }
     }
     
     void writeDirectory(String directoryName){
