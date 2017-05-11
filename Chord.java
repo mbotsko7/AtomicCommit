@@ -1,4 +1,4 @@
-import javax.swing.tree.TreeNode;
+
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
@@ -511,6 +511,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     * \param giud Desired GUID of Chord
     **********************************/
     public Chord(int port, long guid) throws RemoteException {
+        File f = new File("./tmp");
+        if(!f.exists())
+            f.mkdir();
         int j;
 	    finger = new ChordMessageInterface[M];
         for (j=0;j<M; j++){
