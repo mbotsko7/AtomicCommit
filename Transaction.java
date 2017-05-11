@@ -11,10 +11,10 @@ public class Transaction {
     private Vote v; //for getDecision in Chord
     private long coordinator;
 
-    public Transaction(long coord, long GUID, FileStream fs, long ID, Operation ops){
+    public Transaction(long coord, long GUID, FileStream fs, Operation ops){
         guid = GUID;
         fileStream = fs;
-        transactionId = ID;
+        transactionId = System.currentTimeMillis();
         op = ops;
         coordinator = coord;
     }
