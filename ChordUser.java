@@ -91,14 +91,8 @@ public class ChordUser
                              chord.Print();
                          }
                          if  (tokens[0].equals("write") && tokens.length == 2) {
-                             File file = new File(tokens[1]);
-                             if(file.exists()){
-                               if(file.isDirectory()){
-                                 chord.writeDirectory(tokens[1]);
-                               }else{
-                                 chord.writeFile(tokens[1]);
-                               }
-                             }
+                           
+                             chord.writeFile(tokens[1]);
                          }
                          if  (tokens[0].equals("read") && tokens.length == 2) {
                             chord.readFile(tokens[1]);

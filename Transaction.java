@@ -1,7 +1,8 @@
+import java.io.Serializable;
 /**
  * Created by bardsko on 5/9/17.
  */
-public class Transaction {
+public class Transaction implements Serializable{
     public enum Operation { WRITE, DELETE}
     public enum Vote {YES, NO}
     private long transactionId;
