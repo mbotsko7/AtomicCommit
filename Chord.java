@@ -37,7 +37,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     * Validate a transaction:
     * \param time IP of Chord you are looking for
     **********************************/
-    public boolean transactionValid(long time, long filestime){
+    public boolean transactionValid(long time, long filestime, long g){
         boolean valid = true;
         for(File f:new File(tmpPath).listFiles()){
             Transaction t;
@@ -48,14 +48,17 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
                 if(t.getTransactionId() > time)
                     valid = false;
-                if(f.lastModified() > filestime)
-                    valid = false;
+
             }
             catch (Exception e){
                 e.printStackTrace();
             }
 
 
+        }
+        for(File f:new File(filePath+g).listFiles()){
+            if(f.lastModified() > filestime)
+                valid = false;
         }
         return valid;
     }
@@ -67,7 +70,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     public boolean canCommit(Transaction trans){
         File pathtofile = new File(filePath+trans.getGuid());
         long mytime = pathtofile.lastModified();
-        if(transactionValid(trans.getTransactionId(), mytime)){
+        if(transactionValid(trans.getTransactionId(), mytime, trans.getGuid())){
             trans.setVote(true);
             File f = new File(tmpPath+trans.getTransactionId());
             try{
