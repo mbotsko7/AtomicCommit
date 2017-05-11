@@ -1,3 +1,4 @@
+import javax.swing.tree.TreeNode;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
@@ -19,6 +20,48 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     ChordMessageInterface[] finger;
     int nextFinger;
     long guid;   		// GUID (i)
+    /***************************************
+     * Begin Atomic Commit
+     */
+    public void doCommit(Transaction trans){
+        if(trans.getOp() == Transaction.Operation.DELETE){
+            try {
+                delete(trans.getGuid());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+                put(trans.getGuid(), trans.getFileStream());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void doAbort(Transaction trans){
+        //get rid of transaction?
+    }
+
+    public void haveCommitted(Transaction trans, Object participant){
+
+    }
+
+    public boolean getDecision(Transaction trans){
+        return trans.getVote();
+    }
+
+
+
+
+
+
+    /***************************************
+     * End Atomic Commit
+     */
+
+
 
     /*****************************//**
     * Lookup a Chord based on IP and Port:

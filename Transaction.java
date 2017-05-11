@@ -8,12 +8,26 @@ public class Transaction {
     private long guid;
     FileStream fileStream;
     private Operation op; //no transaction without operation
+    private Vote v; //for getDecision in Chord
 
     public Transaction(long GUID, FileStream fs, int ID, Operation ops){
         guid = GUID;
         fileStream = fs;
         transactionId = ID;
         op = ops;
+    }
+
+    public void setVote(boolean choice){
+        if(choice)
+            v = Vote.YES;
+        else
+            v = Vote.NO;
+    }
+
+    public boolean getVote(){
+        if(v == Vote.YES)
+            return true;
+        return false;
     }
 
     public Operation getOp(){
