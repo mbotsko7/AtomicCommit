@@ -166,10 +166,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
 
     public void writeDirectory(String directoryName){
-        File f = new File(".");
+        File f = new File(directoryName);
         for(File file : f.listFiles()){
             writeFile(file.getAbsolutePath());
-
         }
     }
 
