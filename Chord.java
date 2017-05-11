@@ -24,7 +24,23 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
      * Begin Atomic Commit
      */
     public boolean canCommit(Transaction trans){
-        return false;
+        if(1 == 1){
+            trans.setVote(true);
+            File f = new File("./tmp/"+trans.getTransactionId());
+            try{
+                OutputStream ostream = new FileOutputStream(f);
+                ObjectOutputStream tstream = new ObjectOutputStream(ostream);
+                tstream.writeObject(trans);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+            return true;
+        }
+        else{
+            trans.setVote(false);
+            return false;
+        }
     }
 
     public void doCommit(Transaction trans){
