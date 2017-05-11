@@ -75,8 +75,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
             f.delete();
     }
 
-    public void haveCommitted(Transaction trans, long participant){
-
+    public boolean haveCommitted(Transaction trans, long participant){
+        File f = new File("./"+this.guid+"/"+trans.getGuid());
+        if(f.exists())
+            return true;
+        return false;
     }
 
     public boolean getDecision(Transaction trans){
