@@ -8,6 +8,8 @@ import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
 
+import static java.lang.System.in;
+
 /*****************************//**
 * \class Chord Chord class which will handle all of the methods that are called remotely
 * \brief It implements the server
@@ -133,7 +135,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 
     void writeDirectory(String directoryName){
         File f = new File(".");
-        f.listFiles();
+        for(File file : f.listFiles()){
+            writeFile(file.getAbsolutePath());
+
+        }
     }
 
     void readFile(String fileName){
