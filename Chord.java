@@ -28,10 +28,16 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
      * Begin Atomic Commit
      */
 
-
+    public boolean transactionValid(long time){
+        for(File f:new File(tmpPath)){
+            if(f.lastModified() < time)
+                return false;
+            return true;
+        }
+    }
 
     public boolean canCommit(Transaction trans){
-        if(1 == 1){
+        if(transactionValid(trans.getTransactionId())){
             trans.setVote(true);
             File f = new File("./tmp/"+trans.getTransactionId());
             try{
