@@ -23,6 +23,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     /***************************************
      * Begin Atomic Commit
      */
+    public boolean canCommit(Transaction trans){
+        return false;
+    }
+
     public void doCommit(Transaction trans){
         if(trans.getOp() == Transaction.Operation.DELETE){
             try {
