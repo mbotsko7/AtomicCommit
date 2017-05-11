@@ -4,14 +4,14 @@
 public class Transaction {
     public enum Operation { WRITE, DELETE}
     public enum Vote {YES, NO}
-    private Integer transactionId;
+    private long transactionId;
     private long guid;
     FileStream fileStream;
     private Operation op; //no transaction without operation
     private Vote v; //for getDecision in Chord
     private long coordinator;
 
-    public Transaction(long coord, long GUID, FileStream fs, int ID, Operation ops){
+    public Transaction(long coord, long GUID, FileStream fs, long ID, Operation ops){
         guid = GUID;
         fileStream = fs;
         transactionId = ID;
@@ -40,7 +40,7 @@ public class Transaction {
         return fileStream;
     }
 
-    public Integer getTransactionId() {
+    public long getTransactionId() {
         return transactionId;
     }
 
