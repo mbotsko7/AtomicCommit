@@ -46,7 +46,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 ObjectInputStream tstream = new ObjectInputStream(ostream);
                 t = (Transaction)tstream.readObject();
 
-                if(t.getTransactionId() < time)
+                if(t.getTransactionId() > time)
                     valid = false;
             }
             catch (Exception e){
