@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,10 +32,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     long guid;   		// GUID (i)
     
     String filePath, tmpPath;
-    /***************************************
-     * Begin Atomic Commit
-     */
 
+    /*****************************//**
+    * Validate a transaction:
+    * \param time IP of Chord you are looking for
+    **********************************/
     public boolean transactionValid(long time){
         boolean valid = true;
         for(File f:new File(tmpPath).listFiles()){
@@ -57,7 +57,11 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
         return valid;
     }
-
+    
+    /*****************************//**
+    * Node checks whether it can commit:
+    * \param trans A transaction from the coordinator
+    **********************************/
     public boolean canCommit(Transaction trans){
         if(transactionValid(trans.getTransactionId())){
             trans.setVote(true);
@@ -78,6 +82,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * Instruct participant to perform the file write:
+    * \param trans Transaction from coordinator
+    **********************************/
     public void doCommit(Transaction trans) {
         if(trans.getOp() == Transaction.Operation.DELETE){
             try {
@@ -97,12 +105,21 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         haveCommitted(trans, guid);
     }
 
+    /*****************************//**
+    * Coordinator tells participants to abort their commit:
+    * \param trans Transaction that is from coordinator
+    **********************************/
     public void doAbort(Transaction trans){
         File f = new File(tmpPath+trans.getTransactionId());
         if(f.exists()) //in case this participant said no
             f.delete();
     }
 
+    /*****************************//**
+    * Reponse from participant to coordinator stating you have commited:
+    * \param trans Transaction sent to coordinator
+    * \param participant The guid of the current node that's acting as the participant
+    **********************************/
     public boolean haveCommitted(Transaction trans, long participant){
         File f = new File(filePath+trans.getGuid());
         if(f.exists())
@@ -110,9 +127,12 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         return false;
     }
 
+    /*****************************//**
+    * Request from participant asking what vote was for missing response from coordinator:
+    * \param trans Transaction
+    **********************************/
     public boolean getDecision(Transaction trans){
         try {
-            //ChordMessageInterface c = locateSuccessor(trans.getCoordinator());
             File f = new File(tmpPath+trans.getTransactionId());
             try{
                 InputStream ostream = new FileInputStream(f);
@@ -129,6 +149,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         return false;
     }
 
+    /*****************************//**
+    * Write a specified file given a file name:
+    * \param fileName The name of the file to be written
+    **********************************/
     public void writeFile(String fileName){
       String path = "./"+  this.guid +"/"+fileName;
         try{
@@ -165,6 +189,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * Write an entire directory to the reposity:
+    * \param directoryName The path of the directory
+    **********************************/
     public void writeDirectory(String directoryName){
     	String path = "./"+  this.guid +"/"+directoryName;
         File f = new File(path);
@@ -174,6 +202,10 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
         }
     }
 
+    /*****************************//**
+    * Read a file from the repository and save it:
+    * \param fileName
+    **********************************/
     public void readFile(String fileName){
         String path = "";
         ChordMessageInterface peer;
@@ -221,7 +253,6 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                     ChordMessageInterface c = locateSuccessor(id);
                     String path = "./"+c.getId()+"/repository/"+id;
                     c.doCommit(new Transaction(guid, id, new FileStream(path), Transaction.Operation.DELETE));
-
                 }
             }
             else{ //if no
@@ -230,20 +261,14 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                     ChordMessageInterface c = locateSuccessor(id);
                     String path = "./"+c.getId()+"/repository/"+id;
                     c.doAbort(new Transaction(guid, id, new FileStream(path), Transaction.Operation.DELETE));
-
                 }
             }
-
-
         }catch(IOException e){
             e.printStackTrace();
         }
 
     }
 
-    /***************************************
-     * End Atomic Commit
-     */
      /*****************************//**
      * Create MD5 hash with a name:
      * \param objectName Name of the file you want to hash with
@@ -396,7 +421,6 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     * \param key GUID of Chord that you want the predecessor of
     **********************************/
     public ChordMessageInterface closestPrecedingNode(long key) throws RemoteException {
-        //TODO
         return predecessor; //return successor;
 
     }
@@ -407,11 +431,9 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     **********************************/
     public void leaveRing(){
         try{
-//            ChordMessageInterface pred = getPredecessor();
-//            ChordMessageInterface succ = locateSuccessor(guid);
             successor.notify(predecessor);
 
-            fixFingers();
+            //fixFingers();
             stabilize();
 
             File[] f = new File(filePath).listFiles();
@@ -512,7 +534,6 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     * Call to ensure that all the fingers are pointing properly:
     **********************************/
     public void fixFingers() {
-        /*
         long id= guid;
         try {
             long nextId;
@@ -531,7 +552,6 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
             finger[nextFinger] = null;
             e.printStackTrace();
         }
-        */
     }
 
     /*****************************//**
@@ -572,7 +592,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
 	    @Override
 	    public void run() {
             stabilize();
-            fixFingers();
+            //fixFingers();
             checkPredecessor();
             }
         }, 500, 500);
