@@ -38,6 +38,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
      */
 
     public boolean transactionValid(long time){
+        boolean valid = true;
         for(File f:new File(tmpPath).listFiles()){
             Transaction t;
             try{
@@ -46,13 +47,13 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 t = (Transaction)tstream.readObject();
 
                 if(t.getTransactionId() < time)
-                    return false;
+                    valid = false;
             }
             catch (Exception e){
                 e.printStackTrace();
             }
 
-            return true;
+            return valid;
         }
     }
 
