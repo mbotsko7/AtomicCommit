@@ -77,7 +77,22 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
     }
 
     public boolean getDecision(Transaction trans){
-        return trans.getVote();
+        try {
+            //ChordMessageInterface c = locateSuccessor(trans.getCoordinator());
+            File f = new File("./tmp/"+trans.getTransactionId());
+            try{
+                InputStream ostream = new FileInputStream(f);
+                ObjectInputStream tstream = new ObjectInputStream(ostream);
+                Transaction t = (Transaction)tstream.readObject();
+                return t.getVote();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     void writeFile(String fileName){
@@ -87,7 +102,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
             for(int i = 0; i < 3; i++){
                 long id = md5(fileName+i+1);
                 ChordMessageInterface c = locateSuccessor(id);
-                Transaction t = new Transaction(id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE);
+                Transaction t = new Transaction( guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE);
                 if(c.canCommit(t) == false)
                     vote = false;
             }
@@ -96,7 +111,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 for(int i = 0; i < 3; i++){
                     long id = md5(fileName+i+1);
                     ChordMessageInterface c = locateSuccessor(id);
-                    c.doCommit(new Transaction(id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE));
+                    c.doCommit(new Transaction(guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE));
 
                 }
             }
@@ -104,7 +119,7 @@ public class Chord extends java.rmi.server.UnicastRemoteObject implements ChordM
                 for(int i = 0; i < 3; i++){
                     long id = md5(fileName+i+1);
                     ChordMessageInterface c = locateSuccessor(id);
-                    c.doAbort(new Transaction(id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE));
+                    c.doAbort(new Transaction(guid, id, new FileStream(fileName), (int)(Math.random()*1000), Transaction.Operation.WRITE));
 
                 }
             }

@@ -9,12 +9,14 @@ public class Transaction {
     FileStream fileStream;
     private Operation op; //no transaction without operation
     private Vote v; //for getDecision in Chord
+    private long coordinator;
 
-    public Transaction(long GUID, FileStream fs, int ID, Operation ops){
+    public Transaction(long coord, long GUID, FileStream fs, int ID, Operation ops){
         guid = GUID;
         fileStream = fs;
         transactionId = ID;
         op = ops;
+        coordinator = coord;
     }
 
     public void setVote(boolean choice){
@@ -44,5 +46,9 @@ public class Transaction {
 
     public long getGuid() {
         return guid;
+    }
+
+    public long getCoordinator(){
+        return coordinator;
     }
 }
